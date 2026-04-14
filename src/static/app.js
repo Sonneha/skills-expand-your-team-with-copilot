@@ -475,13 +475,22 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Function to render a single activity card
   function buildShareData(activityName, details, formattedSchedule) {
+    const sanitizeShareValue = (value) =>
+      String(value || "")
+        .replace(/[<>]/g, "")
+        .replace(/\s+/g, " ")
+        .trim();
+    const safeActivityName = sanitizeShareValue(activityName);
+    const safeDescription = sanitizeShareValue(details.description);
+    const safeSchedule = sanitizeShareValue(formattedSchedule);
+
     const slug = activityName
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, "-")
       .replace(/(^-|-$)/g, "");
     const activityAnchorId = `activity-${slug || "item"}`;
     const activityUrl = `${window.location.origin}${window.location.pathname}#${activityAnchorId}`;
-    const shareText = `Check out "${activityName}" at ${schoolName}! ${details.description} (${formattedSchedule})`;
+    const shareText = `Check out "${safeActivityName}" at ${schoolName}! ${safeDescription} (${safeSchedule})`;
     const encodedText = encodeURIComponent(shareText);
     const encodedUrl = encodeURIComponent(activityUrl);
     const whatsappMessage = encodeURIComponent(`${shareText} ${activityUrl}`);
@@ -492,7 +501,7 @@ document.addEventListener("DOMContentLoaded", () => {
       whatsappUrl: `https://wa.me/?text=${whatsappMessage}`,
       xUrl: `https://x.com/intent/tweet?text=${encodedText}&url=${encodedUrl}`,
       emailUrl: `mailto:?subject=${encodeURIComponent(
-        `Join me for ${activityName}`
+        `Join me for ${safeActivityName}`
       )}&body=${encodeURIComponent(`${shareText}\n\n${activityUrl}`)}`,
     };
   }
@@ -513,10 +522,6 @@ document.addEventListener("DOMContentLoaded", () => {
         temporaryInput.value = shareUrl;
         document.body.appendChild(temporaryInput);
         temporaryInput.select();
-        if (!document.execCommand) {
-          throw new Error("Clipboard copy is not supported in this browser.");
-        }
-
         const copied = document.execCommand("copy");
         document.body.removeChild(temporaryInput);
         if (!copied) {
@@ -630,7 +635,7 @@ document.addEventListener("DOMContentLoaded", () => {
           href="${shareData.whatsappUrl}"
           target="_blank"
           rel="noopener noreferrer"
-          aria-label="Share details for ${name} at ${schoolName} on WhatsApp"
+          aria-label="Share ${name} on WhatsApp"
         >
           WhatsApp
         </a>
@@ -639,14 +644,14 @@ document.addEventListener("DOMContentLoaded", () => {
           href="${shareData.xUrl}"
           target="_blank"
           rel="noopener noreferrer"
-          aria-label="Share details for ${name} at ${schoolName} on X"
+          aria-label="Share ${name} on X"
         >
           X
         </a>
         <a
           class="share-link-button"
           href="${shareData.emailUrl}"
-          aria-label="Share details for ${name} at ${schoolName} by email"
+          aria-label="Share ${name} by email"
         >
           Email
         </a>
