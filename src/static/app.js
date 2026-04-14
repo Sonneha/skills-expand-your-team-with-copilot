@@ -33,6 +33,7 @@ document.addEventListener("DOMContentLoaded", () => {
     community: { label: "Community", color: "#fff3e0", textColor: "#e65100" },
     technology: { label: "Technology", color: "#e8eaf6", textColor: "#3949ab" },
   };
+  const schoolName = "Mergington High School";
 
   // State for activities and filters
   let allActivities = {};
@@ -480,14 +481,15 @@ document.addEventListener("DOMContentLoaded", () => {
       .replace(/(^-|-$)/g, "");
     const activityAnchorId = `activity-${slug || "item"}`;
     const activityUrl = `${window.location.origin}${window.location.pathname}#${activityAnchorId}`;
-    const shareText = `Check out "${activityName}" at Mergington High School! ${details.description} (${formattedSchedule})`;
+    const shareText = `Check out "${activityName}" at ${schoolName}! ${details.description} (${formattedSchedule})`;
     const encodedText = encodeURIComponent(shareText);
     const encodedUrl = encodeURIComponent(activityUrl);
+    const whatsappMessage = encodeURIComponent(`${shareText} ${activityUrl}`);
 
     return {
       activityAnchorId,
       activityUrl,
-      whatsappUrl: `https://wa.me/?text=${encodedText}%20${encodedUrl}`,
+      whatsappUrl: `https://wa.me/?text=${whatsappMessage}`,
       xUrl: `https://x.com/intent/tweet?text=${encodedText}&url=${encodedUrl}`,
       emailUrl: `mailto:?subject=${encodeURIComponent(
         `Join me for ${activityName}`
@@ -511,7 +513,7 @@ document.addEventListener("DOMContentLoaded", () => {
         temporaryInput.value = shareUrl;
         document.body.appendChild(temporaryInput);
         temporaryInput.select();
-        if (typeof document.execCommand !== "function") {
+        if (!document.execCommand) {
           throw new Error("Clipboard copy is not supported in this browser.");
         }
 
@@ -628,7 +630,7 @@ document.addEventListener("DOMContentLoaded", () => {
           href="${shareData.whatsappUrl}"
           target="_blank"
           rel="noopener noreferrer"
-          aria-label="Share details for ${name} at Mergington High School on WhatsApp"
+          aria-label="Share details for ${name} at ${schoolName} on WhatsApp"
         >
           WhatsApp
         </a>
@@ -637,14 +639,14 @@ document.addEventListener("DOMContentLoaded", () => {
           href="${shareData.xUrl}"
           target="_blank"
           rel="noopener noreferrer"
-          aria-label="Share details for ${name} at Mergington High School on X"
+          aria-label="Share details for ${name} at ${schoolName} on X"
         >
           X
         </a>
         <a
           class="share-link-button"
           href="${shareData.emailUrl}"
-          aria-label="Share details for ${name} at Mergington High School by email"
+          aria-label="Share details for ${name} at ${schoolName} by email"
         >
           Email
         </a>
