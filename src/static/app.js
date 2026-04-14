@@ -473,6 +473,58 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // Function to render a single activity card
+  function buildShareData(activityName, details, formattedSchedule) {
+    const slug = activityName
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/(^-|-$)/g, "");
+    const activityAnchorId = `activity-${slug || "item"}`;
+    const activityUrl = `${window.location.origin}${window.location.pathname}#${activityAnchorId}`;
+    const shareText = `Check out "${activityName}" at Mergington High School! ${details.description} (${formattedSchedule})`;
+    const encodedText = encodeURIComponent(shareText);
+    const encodedUrl = encodeURIComponent(activityUrl);
+
+    return {
+      activityAnchorId,
+      activityUrl,
+      whatsappUrl: `https://wa.me/?text=${encodedText}%20${encodedUrl}`,
+      xUrl: `https://twitter.com/intent/tweet?text=${encodedText}&url=${encodedUrl}`,
+      emailUrl: `mailto:?subject=${encodeURIComponent(
+        `Join me for ${activityName}`
+      )}&body=${encodeURIComponent(`${shareText}\n\n${activityUrl}`)}`,
+    };
+  }
+
+  async function handleCopyShareLink(event) {
+    const shareUrl = event.currentTarget.dataset.shareUrl;
+
+    if (!shareUrl) {
+      showMessage("Unable to copy this link right now.", "error");
+      return;
+    }
+
+    try {
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(shareUrl);
+      } else {
+        const temporaryInput = document.createElement("input");
+        temporaryInput.value = shareUrl;
+        document.body.appendChild(temporaryInput);
+        temporaryInput.select();
+        document.execCommand("copy");
+        document.body.removeChild(temporaryInput);
+      }
+
+      showMessage("Share link copied!", "success");
+    } catch (error) {
+      console.error("Copy failed:", error);
+      showMessage(
+        "Couldn't copy link automatically. Please copy it from the address bar.",
+        "error"
+      );
+    }
+  }
+
   function renderActivityCard(name, details) {
     const activityCard = document.createElement("div");
     activityCard.className = "activity-card";
@@ -498,6 +550,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Format the schedule using the new helper function
     const formattedSchedule = formatSchedule(details);
+    const shareData = buildShareData(name, details, formattedSchedule);
+    activityCard.id = shareData.activityAnchorId;
 
     // Create activity tag
     const tagHtml = `
@@ -552,6 +606,41 @@ document.addEventListener("DOMContentLoaded", () => {
             .join("")}
         </ul>
       </div>
+      <div class="share-actions">
+        <span class="share-label">Share:</span>
+        <button
+          type="button"
+          class="share-button copy-share-link"
+          data-share-url="${shareData.activityUrl}"
+        >
+          Copy Link
+        </button>
+        <a
+          class="share-link-button"
+          href="${shareData.whatsappUrl}"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Share ${name} on WhatsApp"
+        >
+          WhatsApp
+        </a>
+        <a
+          class="share-link-button"
+          href="${shareData.xUrl}"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Share ${name} on X"
+        >
+          X
+        </a>
+        <a
+          class="share-link-button"
+          href="${shareData.emailUrl}"
+          aria-label="Share ${name} by email"
+        >
+          Email
+        </a>
+      </div>
       <div class="activity-card-actions">
         ${
           currentUser
@@ -576,6 +665,11 @@ document.addEventListener("DOMContentLoaded", () => {
     deleteButtons.forEach((button) => {
       button.addEventListener("click", handleUnregister);
     });
+
+    const copyShareButton = activityCard.querySelector(".copy-share-link");
+    if (copyShareButton) {
+      copyShareButton.addEventListener("click", handleCopyShareLink);
+    }
 
     // Add click handler for register button (only when authenticated)
     if (currentUser) {
