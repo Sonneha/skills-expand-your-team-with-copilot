@@ -511,8 +511,15 @@ document.addEventListener("DOMContentLoaded", () => {
         temporaryInput.value = shareUrl;
         document.body.appendChild(temporaryInput);
         temporaryInput.select();
-        document.execCommand("copy");
+        if (typeof document.execCommand !== "function") {
+          throw new Error("Clipboard copy is not supported in this browser.");
+        }
+
+        const copied = document.execCommand("copy");
         document.body.removeChild(temporaryInput);
+        if (!copied) {
+          throw new Error("Copy command failed.");
+        }
       }
 
       showMessage("Share link copied!", "success");
@@ -612,6 +619,7 @@ document.addEventListener("DOMContentLoaded", () => {
           type="button"
           class="share-button copy-share-link"
           data-share-url="${shareData.activityUrl}"
+          aria-label="Copy the share link for ${name}"
         >
           Copy Link
         </button>
@@ -620,7 +628,7 @@ document.addEventListener("DOMContentLoaded", () => {
           href="${shareData.whatsappUrl}"
           target="_blank"
           rel="noopener noreferrer"
-          aria-label="Share ${name} on WhatsApp"
+          aria-label="Share details for ${name} at Mergington High School on WhatsApp"
         >
           WhatsApp
         </a>
@@ -629,14 +637,14 @@ document.addEventListener("DOMContentLoaded", () => {
           href="${shareData.xUrl}"
           target="_blank"
           rel="noopener noreferrer"
-          aria-label="Share ${name} on X"
+          aria-label="Share details for ${name} at Mergington High School on X"
         >
           X
         </a>
         <a
           class="share-link-button"
           href="${shareData.emailUrl}"
-          aria-label="Share ${name} by email"
+          aria-label="Share details for ${name} at Mergington High School by email"
         >
           Email
         </a>
