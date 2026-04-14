@@ -506,6 +506,15 @@ document.addEventListener("DOMContentLoaded", () => {
     };
   }
 
+  function escapeHtml(value) {
+    return String(value || "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#39;");
+  }
+
   async function handleCopyShareLink(event) {
     const shareUrl = event.currentTarget.dataset.shareUrl;
 
@@ -565,6 +574,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // Format the schedule using the new helper function
     const formattedSchedule = formatSchedule(details);
     const shareData = buildShareData(name, details, formattedSchedule);
+    const escapedActivityName = escapeHtml(name);
     activityCard.id = shareData.activityAnchorId;
 
     // Create activity tag
@@ -626,7 +636,7 @@ document.addEventListener("DOMContentLoaded", () => {
           type="button"
           class="share-button copy-share-link"
           data-share-url="${shareData.activityUrl}"
-          aria-label="Copy the share link for ${name}"
+          aria-label="Copy the share link for ${escapedActivityName}"
         >
           Copy Link
         </button>
@@ -635,7 +645,7 @@ document.addEventListener("DOMContentLoaded", () => {
           href="${shareData.whatsappUrl}"
           target="_blank"
           rel="noopener noreferrer"
-          aria-label="Share ${name} on WhatsApp"
+          aria-label="Share ${escapedActivityName} on WhatsApp"
         >
           WhatsApp
         </a>
@@ -644,14 +654,14 @@ document.addEventListener("DOMContentLoaded", () => {
           href="${shareData.xUrl}"
           target="_blank"
           rel="noopener noreferrer"
-          aria-label="Share ${name} on X"
+          aria-label="Share ${escapedActivityName} on X"
         >
           X
         </a>
         <a
           class="share-link-button"
           href="${shareData.emailUrl}"
-          aria-label="Share ${name} by email"
+          aria-label="Share ${escapedActivityName} by email"
         >
           Email
         </a>
