@@ -488,7 +488,7 @@ document.addEventListener("DOMContentLoaded", () => {
       activityAnchorId,
       activityUrl,
       whatsappUrl: `https://wa.me/?text=${encodedText}%20${encodedUrl}`,
-      xUrl: `https://twitter.com/intent/tweet?text=${encodedText}&url=${encodedUrl}`,
+      xUrl: `https://x.com/intent/tweet?text=${encodedText}&url=${encodedUrl}`,
       emailUrl: `mailto:?subject=${encodeURIComponent(
         `Join me for ${activityName}`
       )}&body=${encodeURIComponent(`${shareText}\n\n${activityUrl}`)}`,
